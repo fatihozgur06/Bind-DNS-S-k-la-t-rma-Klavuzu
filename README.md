@@ -232,30 +232,31 @@ Bind v9.5.1 için /dev/poll oluşturun
    mknod poll c 138 0 
    chgrp sys random
    chmod 644 random
-
+```
 Yerel syslog mesajları için opsiyoneldir: Syslog için bir döngü yaratın. Ben bunu gerekli bulmuyorum ama bir okuyucu bunu öneriyor:
 
-
+```
 mkdir /dns/etc/.syslog_door
 mount -F lofs /etc/.syslog_door /dns/etc/.syslog_door
 ```
 
 Solaris 8/9’da, /dev/random-a ulaşım /dns jail’a döngü oluşturarak temin edile bilir (ben bunu tarihi nedenlerden dolayı kullanıyorum...):
 
-```
+   ```
    mkdir /dns/dev/random
    mount -F lofs /dev/random /dns/dev/random
-veya DNS jail-in içinde bir cihaz yaratarak (önce cari minor/major cihaz numarasına bakılması gerek ls -al /devices/pseudo/random\@0\:random):
+   veya DNS jail-in içinde bir cihaz yaratarak (önce cari minor/major cihaz numarasına bakılması gerek ls -al /devices/pseudo/random\@0\:random):
    cd /dns/dev
    mknod random c 240 0
    chgrp sys random
    chmod 644 random
- ```
+   ```
  
 DNS verisi için dizin oluşturun; bunun /var/named’de olduğunu varsayalım:
 
 ```
 mkdir -p /dns/var/named;
+
 ```
 
 
