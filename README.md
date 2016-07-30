@@ -300,34 +300,65 @@ PID dosyası /var/run-a konuldu /usr/local-a değil, çünki named kullanıcıs�
   cd /dns
   chgrp -R named *
    ```
- *** grup yazımını var-dan kaldırın, opt ve usr’e ulaşım yazın
+ > * grup yazımını var-dan kaldırın, opt ve usr’e ulaşım yazın
+  
+  ```
   chmod -R g-w var;
   chmod -R a-w opt usr;
-# Secondary İçin, named’e very dosyalarını oluşturma/değişim izni verin :
+  ```
+> * Secondary İçin, named’e very dosyalarını oluşturma/değişim izni verin :
+
+  ```
   chown -R root:named /dns/var/named;
   chmod 770 /dns/var/named;
-# Primary için, named’e yalnız okuma izni verin, veri dosyalarına yazma iznine gerek yok:
+  ```
+> * Primary için, named’e yalnız okuma izni verin, veri dosyalarına yazma iznine gerek yok:
+  
+  ```
   chown -R root:named /dns/var/named;
   chmod 750 /dns/var/named;
   chmod -R go-w /dns/var/named;
-# Not: Size bir beyaz yalan söyledim... eğer named onarım dosyası veya dökuman istatistiği yazma gereği duyarsa yazar
-# /dns/var/named’e ulaşın. Böylece isteğinize gore çok sıkı ya da rahat bir kurulum tercih ede bilirsiniz:
+  ```
+> *  Not: Size bir beyaz yalan söyledim... eğer named onarım dosyası veya dökuman istatistiği yazma gereği duyarsa yazar
+> * /dns/var/named’e ulaşın. Böylece isteğinize gore çok sıkı ya da rahat bir kurulum tercih ede bilirsiniz:
+  
+  ```
   chmod 770 /dns/var/named;
-# Boş log ve pid dosyaları oluşturun:
+  ```
+  
+> * Boş log ve pid dosyaları oluşturun:
+  
+  ```
   touch var/log/all.log var/run/named.pid;
   chown named:named var/log/all.log var/run/named.pid;
-# Named user/group’a logs ve piddosyaları yazma izni verin:
+  ```
+
+> * Named user/group’a logs ve piddosyaları yazma izni verin:
+  
+  ```
   chgrp -R named /dns/var/log /dns/var/run;
   chmod 770 /dns/var/run /dns/var/log;
   chmod -R o-rwx /dns/var/run /dns/var/log;
-# named’e BIND yapılanma dosyasına erişim izni verin:
+  ```
+> * named’e BIND yapılanma dosyasına erişim izni verin:
+  
+  ```
   chgrp named /dns/etc;
   chown root:named /dns/etc/named.conf;
   chmod 640 /dns/etc/named.conf;
   chmod 755 /dns/etc;
-# Eğer varsa SUID veya SGID bitlerini kaldırın:
+  ```
+
+> * Eğer varsa SUID veya SGID bitlerini kaldırın:
+  
+  ```
   find . -type f -exec chmod ug-s {} \;
-# Dünya erişimini kaldırın:
+  ```
+> * Dünya erişimini kaldırın:
+  
+  ```
   chmod -R o-rwx * /dns/usr
+  ```
+  
 "ls -alR"in üretim DNS öncülü üzerindeki örneği için dipnot [8]’e bakınız.
 
