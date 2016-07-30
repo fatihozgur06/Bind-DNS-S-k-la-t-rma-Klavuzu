@@ -149,7 +149,7 @@ Add /dns/usr/local/bin to the root PATH in /root/.cshrc or /root/.profile.
 
 * BIND dağılımını kurun – ilk önce dizini tarball-ın yerleşkesine değişin:
 
-```
+    ```
     cp bind9_dist.tar.Z /dns/usr/local;
     cd /dns/usr/local;
     zcat bind9_dist.tar.Z| tar xvf -
@@ -157,7 +157,7 @@ Add /dns/usr/local/bin to the root PATH in /root/.cshrc or /root/.profile.
     
 * chroot ortamı için gerekli system dosyalarını kopyalayın
 
-```
+   ```
    cp /etc/{syslog.conf,netconfig,nsswitch.conf,resolv.conf,TIMEZONE} /dns/etc
    ```
    
