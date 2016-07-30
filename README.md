@@ -58,16 +58,17 @@ Solarisin iyi çalıştığı ve yeteri kadar sağlamlaştırıldığı ve birli
 ## 1. BIND’in Derlenmesi ( derleyici ev sahibine )
 Dağılımı indirin [1], onu subdirectorye çıkarın ve derleyin. Bu işlem kök kullanıcı olmayarak ta yapıla bilir.
 * Önkoşullar: 
-İlk olarak 'GNU make'i kurun, böylece altdaki rehbere geçici kurlumunuz doğru bir şekilde çalışır. Ayrıca aşağıda  /usr/local/bin/make’e başvuruyoruz, Solarisin standart /usr/ccs/bin/make’e değil. 
+İlk olarak 'GNU make'i kurun, böylece altdaki rehbere geçici kurlumunuz doğru bir şekilde çalışır.
+Ayrıca aşağıda  /usr/local/bin/make’e başvuruyoruz, Solarisin standart /usr/ccs/bin/make’e değil. 
 Standart Solaris yacc’ın yeterli olmasına rağmen GNU bison’a eski test sistemimde ihtiyaç vardı. 
 **GNU grep v9.5.1’e yükseltme için gerekti** 
 SSL kütüphanesinin son versiyonunun kurulması gerek. Eğer SSL kütüphaneleri eski olursa BIND bundan hoşnut olmaz (eski versiyonların güvenlik zaafları mevcut). 
-Yukarıdakiler için paketler SunFreeware.com’dan kolayca kurula bilir, mesela: 
+Yukarıdakiler için paketler SunFreeware.com’dan kolayca kurulabilir, mesela: 
       
-* wget ftp://ftp.sunfreeware.com/pub/freeware/sparc/8/grep-2.5.1a-sol8-sparc-local.gz
-* gunzip grep-2.5.1a-sol8-sparc-local.gz
-* pkgadd -d grep-2.5.1a-sol8-sparc-local
-    Yeni grep-i kurduktan sonra  'make'in bulmasından emin olun:
+  wget ftp://ftp.sunfreeware.com/pub/freeware/sparc/8/grep-2.5.1a-sol8-sparc-local.gz
+  gunzip grep-2.5.1a-sol8-sparc-local.gz
+  pkgadd -d grep-2.5.1a-sol8-sparc-local
+Yeni grep-i kurduktan sonra  'make'in bulmasından emin olun:
     	export GREP=/usr/local/bin/grep
 * BIND 9.1.0’in sürüm notunda çok işlemliliğin Solaris 2.6-da bazı problemler yaratacağı not edilmiştir, bu yüzden çok işlemci desteği olmadan derlemeyi gerçekleştiriyoruz:
       ./configure --disable-threads
@@ -75,16 +76,16 @@ Yukarıdakiler için paketler SunFreeware.com’dan kolayca kurula bilir, mesela
 * Solaris 7/8’de çok işlemciyi active ede biliriz:
       ./configure
      Şimdi ise GNU make’i kullanarak derleye biliriz:
-    /usr/local/bin/make
+      /usr/local/bin/make
     Şimdi kök hesabı değişin, onu geçici rehbere kurun ve ‘tarball’ yaratın:
-su - root
-    # Gruba izin verin, dünya ulaşımına değil
-    umask 027
-    /usr/local/bin/make install DESTDIR=/tmp
-    cd /tmp/usr/local
-    strip bin/* sbin/* lib/*
-    \rm -rf include
-    tar cf - * | compress > bind9_dist.tar.Z
+       su - root
+       #allow group, but not world access
+       umask 027
+       /usr/local/bin/make install DESTDIR=/tmp
+       cd /tmp/usr/local
+       strip bin/* sbin/* lib/*
+       \rm -rf include
+       tar cf - * | compress > bind9_dist.tar.Z
   
 Daha sonra, bind9_dist.tar.Z’i daha güvenli bir yere taşıyın, /tmp/usr-i kaldırın ve BIND’i derlediğiniz rehberi temizleyin.
 **Belgeleme:**
