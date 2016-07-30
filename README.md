@@ -76,7 +76,9 @@ Yeni grep-i kurduktan sonra  'make'in bulmasından emin olun:
     	export GREP=/usr/local/bin/grep
     	```
 * BIND 9.1.0’in sürüm notunda çok işlemliliğin Solaris 2.6-da bazı problemler yaratacağı not edilmiştir, bu yüzden çok işlemci desteği olmadan derlemeyi gerçekleştiriyoruz:
+ ```
       ./configure --disable-threads
+ ```
   
 * Solaris 7/8’de çok işlemciyi active ede biliriz:
 ```      
@@ -106,5 +108,154 @@ Daha sonra, bind9_dist.tar.Z’i daha güvenli bir yere taşıyın, /tmp/usr-i k
 **Belgeleme:**
 Yönetici Rehberi(html formatında) dağılıma doc/arm/Bv9ARM.html’de dahil edilmiştir ve okumakta yarar vardır. İnsanlar için olan sayfalar da mevcut fakat onları Solaris’e kurmak hayli zordur. Bir sonraki sürüm olan v9.2’de insan sayfaları düzgün bir şekilde kurulmalıdır, bu sayfalar metin şeklinde mevcuttur [9].
 
+## 2. Chroot’un ayarlanması ve BIND’in kurulumu (hedef sisteme)
+Sonraki adımlar C-Shell kullanımını anlatıyor. Biz buna chroot ortam (kafes) lokasyonunu değişken olarak tanımlamakla başlıyoruz ve akabinde umask’i ayarlıyoruz ve böylece bütün kopyalanmış dosyalar hem gruplar hem de dünya tarafından okunabilir. Bu komutalar kopyalanmak ve yapıştırılmak üzere tasarlanmıştır.
+* Chroot jail için hedef dizinlerini ayarlayın, herşey bu ağacın alt dizinlerie kurulacak.
+
+```
+      csh
+      unset noclobber
+      set jail='/home/dns';
+      umask 022;
+      ```
+      
+* Boş dizinleri ve bağlantıları chroot environment için ayarlayın:
+* 
+```
+     mkdir $jail;
+   /dns-ten jail-e bir bağlantı yaratın, hayatı kolaylaştırmak için bu makalede "/dns" chroot ağacının en tepesi olarak kabul edilecektir.
+     rm /dns
+     ln -s $jail /dns
+     cd /dns;
+     mkdir -p {dev,opt,usr,var,etc};
+     mkdir -p var/{run,log,named} usr/lib;
+     mkdir -p usr/local/etc
+     mkdir -p usr/share/lib/zoneinfo;
+     ```
+     
+* Hesaplar:
+BIND için bir kullanıcı ve grup hesabı yaratın,
+```
+groupadd named;
+useradd -d /dns -s /bin/false -g named -c "BIND daemon" -m named
+Chroot içinde aynı kullanıcı ve grup hesabı oluşturun:
+grep named /etc/passwd >> /dns/etc/passwd
+grep named /etc/shadow >> /dns/etc/shadow
+grep named /etc/group >> /dns/etc/group
+BIND hesabının ftp kullanmasına izin vermeyin:
+echo "named" >> /etc/ftpusers
+Add /dns/usr/local/bin to the root PATH in /root/.cshrc or /root/.profile.
+```
+
+* BIND dağılımını kurun – ilk önce dizini tarball-ın yerleşkesine değişin:
+
+```
+    cp bind9_dist.tar.Z /dns/usr/local;
+    cd /dns/usr/local;
+    zcat bind9_dist.tar.Z| tar xvf -
+    ```
+    
+* chroot ortamı için gerekli system dosyalarını kopyalayın
+
+```
+   cp /etc/{syslog.conf,netconfig,nsswitch.conf,resolv.conf,TIMEZONE} /dns/etc
+   ```
+   
+Obje kütüphanelerinin ne paylaştığını görmek için ldd kullanın:
+```
+ldd /dns/usr/local/sbin/named
+```
+
+ldd ile listelenen dosyaları kopyalayın, mesela Solaris 8’de:
+
+```
+cp -p /usr/lib/libnsl.so.1  \
+/usr/lib/libsocket.so.1 /usr/lib/libc.so.1 \
+/usr/lib/libthread.so.1 /usr/lib/libpthread.so.1 \
+/usr/lib/libdl.so.1 /usr/lib/libmp.so.2 \
+/usr/lib/ld.so.1 /usr/lib/nss_files.so.1 \
+/usr/platform/SUNW,UltraAX-i2/lib/libc_psr.so.1 \
+/dns/usr/lib
+```
+
+Solaris 2.6:
+
+```
+cp -p /usr/lib/libnsl.so.1 \
+/usr/lib/libsocket.so.1 /usr/lib/libc.so.1 \
+/usr/lib/libdl.so.1 /usr/lib/libmp.so.2 /dns/usr/lib
+```
+
+Solaris 2.6 UltraSPARC’da ldd aynı zamanda bunları da gerekli bilip listeler:
+
+```
+cp /usr/platform/SUNW,Ultra-250/lib/libc_psr.so.1  /dns/usr/lib
+```
+
+Deneyimler bunların da gerekli olduğunu göstermiştir:
+
+```
+cp /usr/lib/ld.so.1 /usr/lib/nss_files.so.1 /dns/usr/lib
+```
+
+("deneyim" ilk girişimlerin başarısız olduğu demektir, ama truss ile çalışan  BIND kütüphanenin neyi aradığını anlaya bilir.)
+Timezone dosyalarını kopyalayın (mesela MET, burada Avrupa):
+
+```
+mkdir -p /dns/usr/share/lib/zoneinfo;
+cp -p /usr/share/lib/zoneinfo/MET /dns/usr/share/lib/zoneinfo/MET
+```
+
+İletişim araçlarını kurun( konsol, syslog).
+ 
+ ```
+    cd /dns/dev
+    mknod tcp c 11 42
+    mknod udp c 11 41
+    mknod log c 21 5
+    mknod null c 13 2
+    mknod zero c 13 12
+    chgrp sys null zero
+    chmod 666 null
+
+    mknod conslog c 21 0
+    mknod syscon c 0 0
+    chmod 620 syscon
+    chgrp tty syscon
+    chgrp sys conslog
+ ```
+ 
+Bind v9.5.1 için /dev/poll oluşturun
+
+```
+   cd /dns/dev 
+   mknod poll c 138 0 
+   chgrp sys random
+   chmod 644 random
+
+Yerel syslog mesajları için opsiyoneldir: Syslog için bir döngü yaratın. Ben bunu gerekli bulmuyorum ama bir okuyucu bunu öneriyor:
+
+
+mkdir /dns/etc/.syslog_door
+mount -F lofs /etc/.syslog_door /dns/etc/.syslog_door
+```
+
+Solaris 8/9’da, /dev/random-a ulaşım /dns jail’a döngü oluşturarak temin edile bilir (ben bunu tarihi nedenlerden dolayı kullanıyorum...):
+
+```
+   mkdir /dns/dev/random
+   mount -F lofs /dev/random /dns/dev/random
+veya DNS jail-in içinde bir cihaz yaratarak (önce cari minor/major cihaz numarasına bakılması gerek ls -al /devices/pseudo/random\@0\:random):
+   cd /dns/dev
+   mknod random c 240 0
+   chgrp sys random
+   chmod 644 random
+ ```
+ 
+DNS verisi için dizin oluşturun; bunun /var/named’de olduğunu varsayalım:
+
+```
+mkdir -p /dns/var/named;
+```
 
 
