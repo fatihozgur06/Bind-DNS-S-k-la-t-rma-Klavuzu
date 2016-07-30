@@ -17,7 +17,8 @@ Gerçekten DNS  için endişe duymalı mıyız? Risk altındaki bir DNS sunucusu
       * E-postalarınız ulaştırılamaz (yakın zamanda bilgi alış-verişinde bulunduğunuz bazı diğer internet siteleri DNS girdilerinizi saklı tutmuş olabilir, ama bunlar da birkaç günden fazla dayanmaz).
       * Saldırgan sizin sunucunuz gibi görünen ve alanınız ile ilgili internete yanlış DNS  bilgisi yayan sahte bir DNS sunucusu yaratabilir. Bu bütünlük kaybı demektir, sonraki kesite bakınız.
       
-  * 3. Bütünlük kaybı: Eğer saldırgan DNS verilerini değişir ve ya yanlış bilgiye inanacak başka siteleri kandırırsa (bu DNS zehirlenmesi olarak bilinir), bu çok tehlikelidir:
+* 3. Bütünlük kaybı: Eğer saldırgan DNS verilerini değişir ve ya yanlış bilgiye inanacak başka siteleri kandırırsa (bu DNS zehirlenmesi olarak bilinir), bu çok tehlikelidir:
+      
       *	Sahte siteler sizinmiş gibi görünür ve siteniz tarafından yönetilen kullanıcı girdilerini ele geçirebilir, bu girdiler kullanıcı PIN ve şifreleri de dahil birçok hesap bilgisi olabilir.
       * Bütün e-postalar onları sizin sitenize ulaşmadan önce değişen, kopyalayan ve silen bir röleye yönlendirilebilir.
       * Eğer güvenlik duvarınız veya herhangi bir internet ulaşımı mevcut ev sahibi kimlik doğrulamak için DNS ismini kullanıyor ya da partnerliğinize güveniyorsa, bunlar kesinlikle kötüye kullanılabilir, özellikle İnternet sunucuları ve İntranet zayıf bir filtre paketi ile korunuyorsa. Sadece *.mydomain.com’dan gelen vekil taleplerine izin vermek için ayarlanmış bir Ağ vekili hayal edin. Saldırgan kendi ev sahibini alana ekliyor ve bu zaman Ağ vekili saldırgan HTTP’ye  ondan gelen taleplere izin vererek internet ulaşımı sağlıyor. 
