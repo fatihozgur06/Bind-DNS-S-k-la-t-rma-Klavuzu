@@ -643,9 +643,9 @@ Güncellemeler test ediliyor:
 ##Dinamik Güncellemeler için yorumlar, TSIG Güvenirliği ve ACL
 * Anahtarın gizli tutulması çok önemli:
      * named.conf ve anahtar dosyalar named ya da nsupdate çalıştıran kullanıcıdan başka kimse tarafından okunamamalı.
-	* Anahtar kriptosuz e-postalarla gönderilmemeli
-	* Bu anahtarı paylaştığınız kişi kesinlikle güvenilir olmalı: yani sadece ihtiyacı olan kişilere verin, güvenilmeyenlere değil.
-	* Anahtarınızı düzenli olarak değiştirin, personel değişiminden sonra veya güvenliğinin tehlikede olduğunu düşünürseniz.
+     * Anahtar kriptosuz e-postalarla gönderilmemeli
+     * Bu anahtarı paylaştığınız kişi kesinlikle güvenilir olmalı: yani sadece ihtiyacı olan kişilere verin, güvenilmeyenlere değil.
+     * Anahtarınızı düzenli olarak değiştirin, personel değişiminden sonra veya güvenliğinin tehlikede olduğunu düşünürseniz.
 * Eğer iki anasistem aynı alt ağda olursa, IP adres kandırması anahtarın bir kopyasını elde etemekten daha zordur(Örneğin sınır yönlendiricisi kandırılmış adresleri filtrelerse), bu yüzden IP ACL daha kullanışlıdır.
 * Eğer hem ACL hem de TSIG anahtarları belirtildiyse, örneğin:
 allow-update { key updater1; updaters};
@@ -656,6 +656,231 @@ Bu TSIG veya IP ACL güncellemeler için geçerli demektir.
 * Nsupdate-in hata onarım için '-d' seçeneği vardır.
 * nsupdate güncellemeler için udp yerine tcp de kullana bilir ('-v' seçeneği), bu güncellemeler çok olduğunda daha iyi bir performans ve tcp bağlantı amaçlı olduğu için daha güvenli ortam sağlar. Ek güvenlik amacıyla tcp bağlantısı kriptolu SSH tünelinden de geçirile bilir (kriptolama ve erişim kontrol).
 * Güncelleme poliçesi yeni bir v9 özelliğidir ve sadece bireysel isimler için güncellemelere izin verir. Örneğin ADSL veya DHCP kullanıcısına kendi anasistem ismini güncellemeye izin verir (yani IP adresi deöişe bilir). Güncelleme poliçesi ile ana sistem anahtar listesi düzenlenebilir ve her anahtara sadece ilişkili anasistemi güncelleme izni verilebilir.
+
+#İpuçları
+
+##named.conf ipuçları
+named.conf dosyası seçenekler,günlük tutma, ACL, sunucu ve alan kesitlerinden oluşur.Bazı direktifler şöyledir:
+* Direktif BIND-e veri dosyaları için nereye bakmasını söyler.
+* İnternet erişimi olmayan dahili DNS sunucuları tüm bilinmeyen sorguları forwarders kullanarak internet bağlantılı DNS sunucularına yönlendirir. 
+* BIND işlem numarası pid-dosya direktifine uygun olarak depolanır. "named" kullanıcıları bu dosyaya okuma ve yazma erişimine ihtiyaç duyar. 
+* BIND'in günlük tutması çok esnektir. Aşağıdaki örnek syslog olanaklarını tutar, sorguları yerel dosyaya tutarken onarır:
+    
+    ```
+    logging {
+    channel syslog_errors {syslog daemon; severity info; };
+    channel debug_file {file "debuglog"; severity dynamic;};
+    category queries {debug_file; };
+    };
+    
+    ```
+    
+* Gerçek hata onarım günlüklemesini active etmek için (to /dns/var/named/debuglog), rndc ile named şeytan-a talimat verin:
+    
+    ```
+    /dns/usr/local/sbin/rndc querylog
+    ```
+* Bind 9.5.1-deki huzursuz eden mesajları deaktive etmek için "disabling EDNS":
+    
+   ```
+   category edns-disabled { null; };
+   ```
+* Eğer "ns_client_replace() hata: yeterli hafıza yok" mesajı alırsanız, herhangi bir "datasize" direktifi yazın.
+* "12.66.185.10.in-addr.arpa için internetten RFC 1918 cevabı" uyarısını ala bilirsiniz. Ozaman onları bu türlü adresleri çözebilecek bir sunucuya yönlendirin (1.2.3.4-ü çözücü NS ile değişin):
+    
+    ```
+    zone "10.IN-ADDR.ARPA" {
+    type           forward;
+    forwarders { 1.2.3.4; };
+    forward only;
+    }; 
+    Veya boş bir alan ekleyin
+    zone "10.IN-ADDR.ARPA" {
+    type master;
+    file "empty";
+    };
+    "empty" dosyası oluşur:
+    @ 10800 IN SOA . . (1 3600 1200 604800 10800 )
+    @ 10800 IN NS .
+    
+    ```
+  
+Bu 16.172.IN-ADDR.ARPA, 31.172.IN-ADDR.ARPA ve 168.192.IN-ADDR.ARPA için de yapılabilir.
+* Erişim control listeleri (ACL-ler) sunucuların alan transferinde izin verdiklerini sınırlamak için kullanılmalıdır. Saldırganların ağ düzeninizin haritasını çıkarmasını zorlaştırmak için bu özelliği kullanmanız tavsiye edilir. Alan adı,sizing ISP ve ülkenizin NIC için izin verilen sunucular özellikle öncül/ikincil olur.  
+* BIND-in müşterilere rapor ettiği versiyon numarası (mes. dig)versiyon direktifi ile değiştirile bilir. Bunu ayarlamak basit saldırganların spesifik BIND versiyonlarını(bilinen zayıflıkları ile) gözlemlemesini önlemek için iyi bir fikirdir. Uzak BIND-in versiyon numarasını sorgulamak için deneyin:
+
+  ```
+  dig @NAMESERVER version.bind chaos txt
+  
+  ```
+  
+* Görüşler: v9-daki yeni enterasan özelliklerden biri sorgu gönderene göre buna farklı şekilde yanıt vere bilmesidir, veya başka bir yolla – DNS namespace kısımlarını gözlemleyen spesifik uzak kullanıcıları kısıtlamasıdır. Burada mükemmel bir özel ders bulacaksınız [15].
+     * Sıradaki görüş ifadesi iki farklı DNS haritası örneğidir, biri dahili öbürü ise internet sorguları için. 
+     * Not: öncül ve ikincilde dahili ve harici görüşler ile "split dns" kurmak için beni huzursuz eden iki ayrıntı var: 
+** Dahili ve Harici görüşlere açık olan alanlar named.conf-da iki kere tanımlanır, her görüş için birer defa. Bütün alan tanımları görüşlerin içindedir (otomatik "varsayılan" diye bir görüş konsepti yoktur).
+** Dahili namespace-i ikincilde istemeden de kolayca yayınlaya bilirsiniz. Problem ise öncülden ikincile transfer edilen alanların ikincilin kaynak adresine bağlı olması ve ikincilin göreceği görüşü belirlemesi.
+İkincilin bağımsız dahili ve harici görüş oluşturduğundan emin olmak için:
+    * ikincilde başka bir sanal ağ arayüzü daha oluşturun, ikincile bu yeni adresi öncülden gelen harici namespace transferler için kullanmasını söyleyin(transfer-kaynak A.B.C.D) . 
+    * Bu yeni ikinci adresin ACL-de olduğuna ve alan trasferlerine izin verdiğine, ayrıca dahili görüş için match-clients-de olmadığına emin olun.
+    * Ayrıca hiçbir yerde görünmeyen bu adresin sizin namespace olduğuna emin olun, yani harici veya dahili görüşlerde çözülmemelidir. 
+  * Öncül ve ikincilin ilk arayüzlerinin her iki namespace-de çözüldüğüne emin olun.
+  * Sıradaki örnek harici alan transferleri için  176.17.17.8 adresini kullandığımızı farzediyor.
+   
+   ```
+   view "internal" {// Bu bizim dahili ağımızla örtüşmelidir.
+   match-clients { !176.17.17.8; 10.0.0.0/8; }; // 176.17.17.8 –in dahili görüşten    çıkarılması önemli
+   allow-transfer { internal-nameservers; };   
+   // Dahili müşteriler için özyinelemeyi açın.
+   recursion yes;
+
+   // example.com alanı için bütün görüşü dahili anasistemler
+   //-i dahil ederek ayarlayın.
+   zone "example.com" {
+   type master;
+   file "example-internal.db";
+   };
+   zone "localhost" {
+   type master;
+   file "localhost.zone";
+   notify no;
+   allow-update { none; };
+   };
+   };
+   view "external" {
+   match-clients { any; };
+   // Harici müşteriler için özyinelemeli servisleri reddedin.
+   //transfer-kaynak 176.17.17.8; // İkincilde: Ağ arayüzleri
+   for Internal ZoneTx
+   recursion no;
+// example.com alanı için sadece alenen ulaşılan anasistemleri 
+// içeren sınırlandırılmış görüş sağlayın.
+   zone "example.com" {
+   type master;
+   file "example-external.db";
+   };
+   zone "localhost" {
+   type master;
+   file "localhost.zone";
+   notify no;
+   allow-update { none; };
+   }; 
+   };
+   
+   ```
+##rndc Araçalrının Kullanımı
+
+Bind v9 named daemon-u durdurma, başlatma ve yeniden yükleme için rndc aracını kullanır. Bu kısımda rndc, belge problemleri ve kısıtlamaları kullanmayı inceliyoruz.
+Bind v8 ndc aracını içerir, peki farkları nelerdir? Peki, rndc (v9) TCP soketlerini (varsayılan 953) ndc'nin (v8) UNIX-domain soketlerine karşın kullanır. Ndc chroot ortamında çalışmaz, rndc çalışır.
+* Rndc-nin çalışması için, named rndc girişini dinleyecek şekilde ayarlanmalıdır. Bu girişe erişim kontrolü TSIG anahtarları ile sağlanmaktadır. Bu nedenle bu anahtarlar rndc çalışması için ayarlanmalıdır. O zaman aşağıdaki adımları uygulayarak çalıştıralım:
+     *  rndc girişine erişimi sağlamak için yeni paylaşılan anahtar oluşturun:
+   ```   
+   /dns/usr/local/sbin/dnssec-keygen -a hmac-md5 -b 128 -n user rndc 
+   ```
+'private' dosyasından anahtarı kopyalıyoruz, buna benzer bir şey 'NsuYsQ0Pp7J3LaOsVHr0uw=='.
+     *  Anahtarı buraya ekleyin /dns/etc/named.conf, örneğin:
+
+   ```
+   key key_rndc {algorithm hmac-md5; secret "NsuYsQ0Pp7J3LaOsVHr0uw=="; };
+   
+   ```
+     *  Daha sonra named-e rndc girişini dinlemesini söyleyin, öncül'ün IP addresine ve doğru anahtarı isteyenlere cevap verin:
+ 
+   ```
+   controls {inet 192.168.128.34  port 953 allow {localhost;} keys {key_rndc;} ; };
+
+   ```
+Not: eğer control bölümünü değişirseniz, sunucuyu durdurup tekrar başlatmanızı öneririm, sadece yeniden yükleme veya 'kill -1' yapmayın.
+     *	Named-i durdurun, yeniden başlatın (tabii ki, root olarak ve chroot'ed).
+  
+   ```
+   sh /etc/init.d/dns stop
+   sh /etc/init.d/dns start
+   
+   ```
+
+kayıtlarda buna benzer bir mesaj göreceksiniz:
+  
+     ```
+     /usr/local/sbin/named[12993]: command channel listening on 19     2.168.128.34#953
+  
+     ```
+  
+     *  Daha sonra /etc/rndc.conf-u uygun anahtar ve adresleri varsayılan sunucuda içermesi için başlatın.
+  
+   ```
+  
+   key key_rndc {
+   algorithm hmac-md5;
+   secret "NsuYsQ0Pp7J3LaOsVHr0uw==";
+   };
+   options {
+   default-server 192.168.128.34; 
+   default-key key_rndc; 
+   };
+   bu dosyayı korurun:
+   chmod 600 /etc/rndc.conf
+  
+   ```
+     *	Şimdi bazı testler için hazırız.
+* Rndc test ediliyor:
+* named sunucu yapılandırmasını yeniden yüklemek için:
+  ```  
+  /dns/usr/local/sbin/rndc reload
+
+  ```
+'rndc: yeniden yükleme başarılı' mesajını göreceksiniz.
+* Sadece belirli bir alanı yenileyelim:
+
+   ```  
+   /dns/usr/local/sbin/rndc reload test1.com
+
+   ```
+
+* İkincili ustasını güncellemesine zorlayalım :
+  
+   ```
+   /dns/usr/local/sbin/rndc refresh test1.com
+
+   ```
+
+* Bazı istatistikleri buraya yazın  /dns/var/named/named.stats:
+  
+   ```
+   /dns/usr/local/sbin/rndc stats
+
+   ```
+
+* Sorguların tutulmasını + vey a – olarak değişin:
+ 
+   ```
+   /dns/usr/local/sbin/rndc querylog
+
+   ```
+* DNS önbelleğini bunu kapsaması için yazın /dns/var/named/named_dump.db:
+   
+   ```
+   /dns/usr/local/sbin/rndc dumpdb
+
+   ```
+* Erişim kontrolü test ediliyor:
+     * Eğer /etc/rndc.conf dosyasını başka bir anasisteme (örneğin ikincil 192.168.128.33-e) kopyalar ve 'rndc yenidne yükleme' çalıştırırsak, şifreli mesajlar alırız 'rndc: connect: dosyanın sonu' (sunucu syslog-ta hiçbir girdi görünmez). Aslında bu mesaj rndc bağlantısının erişiminin engellendiği demektir.
+     * O zaman öncül'ün named.conf-a dönüyoruz ve erişim listesini ikincil IP adreslere izin verecek şekilde değişiyoruz:
+inet 192.168.128.34 port 953 allow {localhost;192.168.128.33;} keys {key_rndc ;}
+     * Şimdi 'rndc yeniden yükleme' ikincil bir anasistemden rahatça çalıştırılacak.
+
+
+Rndc ile ilgili güzel şeyler:
+* Bireysel alanlar yeniden yüklenebilir.
+* chroot ortamında çalışır.
+Dezavantajlar:
+* Several features are planned but not yet implemented:
+status: Display ps(1) status of named.
+trace: Hata onarım seviyesini 1 kadar artırın.
+notrace: Hata onarım seviyesini 0 olarak ayarlayın.
+restart: sunucuyu tekrar başlatın.
+* Azıcık karmaşıktır, erişim kontrolü için sadece IP adreslerini kullanmak güzel olurdu örneğin, yerel anasisteme erişimi engellemek gibi.
+* Erişim control ihlalleri sunucu tarafından tutulmaz.
+* Anahtarlar erişim kontrolü için kullanıldığından, /etc/rndc.conf ve named.conf üzerindeki kısıtlayıcı dosya izinleri kritiktir.
 
 
 
