@@ -112,7 +112,7 @@ Yönetici Rehberi(html formatında) dağılıma doc/arm/Bv9ARM.html’de dahil e
 Sonraki adımlar C-Shell kullanımını anlatıyor. Biz buna chroot ortam (kafes) lokasyonunu değişken olarak tanımlamakla başlıyoruz ve akabinde umask’i ayarlıyoruz ve böylece bütün kopyalanmış dosyalar hem gruplar hem de dünya tarafından okunabilir. Bu komutalar kopyalanmak ve yapıştırılmak üzere tasarlanmıştır.
 * Chroot jail için hedef dizinlerini ayarlayın, herşey bu ağacın alt dizinlerie kurulacak.
 
-```
+     ```
       csh
       unset noclobber
       set jail='/home/dns';
@@ -135,7 +135,7 @@ Sonraki adımlar C-Shell kullanımını anlatıyor. Biz buna chroot ortam (kafes
      
 * Hesaplar:
 BIND için bir kullanıcı ve grup hesabı yaratın,
-```
+     ```
 groupadd named;
 useradd -d /dns -s /bin/false -g named -c "BIND daemon" -m named
 Chroot içinde aynı kullanıcı ve grup hesabı oluşturun:
@@ -145,7 +145,7 @@ grep named /etc/group >> /dns/etc/group
 BIND hesabının ftp kullanmasına izin vermeyin:
 echo "named" >> /etc/ftpusers
 Add /dns/usr/local/bin to the root PATH in /root/.cshrc or /root/.profile.
-```
+     ```
 
 * BIND dağılımını kurun – ilk önce dizini tarball-ın yerleşkesine değişin:
 
