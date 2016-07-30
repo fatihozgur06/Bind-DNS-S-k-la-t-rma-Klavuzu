@@ -275,6 +275,7 @@ Peki named.conf-a ne koyuyoruz? BIND-ı çalıştırmak için küçek bir örnek
  * Basit bir ikincil DNS sistemi (adresin bu olduğunu farzedelim 192.168.128.33):
     *  Buraya kopyalayın /dns/var/named: localhost.zone, localhost.rev
     *  Buraya kopyalayın /dns/etc/named.conf: named.conf.secondary
+
 Birazdan DNS yapılandırmasının detayına ineceğiz, şimdilik bu aşamada BIND’i çalıştırmaya odaklanıyoruz.
 Bu dosyaları kopyaladıktan sonra yazılımı doğrulayın :
 
@@ -291,4 +292,42 @@ Primary:
   ```
   /dns/usr/local/sbin/named-checkzone test1.com /dns/var/named/test1.com
   ```
+## 4. Kafes izinlerinin ayarlanması
+Şimdi dosya izinlerini ayarlıyoruz,böylece root dosyaları benimsiyor ve named bütün dosyaları okuyup bazılarını yaza biliyor. O zaman bütün SUID/SGID dosyalarını etkisiz hale getirin. 
+PID dosyası /var/run-a konuldu /usr/local-a değil, çünki named kullanıcısının /usr/local/etc’a (ve named.conf’a) yazmasını istemiyoruz. PID dosyasının lokasyonu named.conf’ta belirleniyor.
+ 
+  ```
+  cd /dns
+  chgrp -R named *
+   ```
+   * > grup yazımını var-dan kaldırın, opt ve usr’e ulaşım yazın
+  chmod -R g-w var;
+  chmod -R a-w opt usr;
+# Secondary İçin, named’e very dosyalarını oluşturma/değişim izni verin :
+  chown -R root:named /dns/var/named;
+  chmod 770 /dns/var/named;
+# Primary için, named’e yalnız okuma izni verin, veri dosyalarına yazma iznine gerek yok:
+  chown -R root:named /dns/var/named;
+  chmod 750 /dns/var/named;
+  chmod -R go-w /dns/var/named;
+# Not: Size bir beyaz yalan söyledim... eğer named onarım dosyası veya dökuman istatistiği yazma gereği duyarsa yazar
+# /dns/var/named’e ulaşın. Böylece isteğinize gore çok sıkı ya da rahat bir kurulum tercih ede bilirsiniz:
+  chmod 770 /dns/var/named;
+# Boş log ve pid dosyaları oluşturun:
+  touch var/log/all.log var/run/named.pid;
+  chown named:named var/log/all.log var/run/named.pid;
+# Named user/group’a logs ve piddosyaları yazma izni verin:
+  chgrp -R named /dns/var/log /dns/var/run;
+  chmod 770 /dns/var/run /dns/var/log;
+  chmod -R o-rwx /dns/var/run /dns/var/log;
+# named’e BIND yapılanma dosyasına erişim izni verin:
+  chgrp named /dns/etc;
+  chown root:named /dns/etc/named.conf;
+  chmod 640 /dns/etc/named.conf;
+  chmod 755 /dns/etc;
+# Eğer varsa SUID veya SGID bitlerini kaldırın:
+  find . -type f -exec chmod ug-s {} \;
+# Dünya erişimini kaldırın:
+  chmod -R o-rwx * /dns/usr
+"ls -alR"in üretim DNS öncülü üzerindeki örneği için dipnot [8]’e bakınız.
 
