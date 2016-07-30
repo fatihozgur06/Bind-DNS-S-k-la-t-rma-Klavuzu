@@ -48,6 +48,12 @@ BIND riskleri bazı koruma önlemleri ile azaltılabilir:
   * 'auth-nxdomain' için varsayılan seçenek şimdi 'no'dur. Eğer manüel olarak ayarlamazsanız, BIND 9 başlangıçta eş anlamlı bir mesaj keşfeder.
   * Kök sunucu listesi, BIND8’de named.root veya root.hints olarak ta bilinir, sunucunun içerisinde yer alsa bile BIND 9’da gerekli değildir.
   * [11]’e de bakın.
+ 
+# BIND’in Kurulumu ve Yapılandırılması
+Solarisin iyi çalıştığı ve yeteri kadar sağlamlaştırıldığı ve birlikte gelen BIND’in aktif olmadığı farzedilir. Eğer hala Solarisi sağlamlaştırmadıysanız, ilk once Jass’ı control edin [7]. Bu bölüm bunlarla çalışır:
+* Sağlamlaştırılmış bir DNS sunucunuz olmadığı için BIND’i bir uzman ev sahibine derleyin.
+* BIND’i bir DNS sunucusuna kurun.
+* Ayarlayın ve BIND’i çalıştırın.
 
 
 
