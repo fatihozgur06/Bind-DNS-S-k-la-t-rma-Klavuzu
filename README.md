@@ -410,4 +410,253 @@ Sun'ın varsayılanını devredışı bırakmak için /etc/rc2.d/S72inetsvc gird
    
 Örnek verdiğim başlama dosyasının /etc/init.d/dns kontrol etmek isteyeceğiniz birkaç nitelik ve ayrıntıları var, örenğin /dns chroot ortamı içinde /dev/random paketlemesi.
 
+# Sorun Giderme Tavsiyeleri
+
+* Client:
+Sunucu sonuçlarını öğrenmek için dig veya host veya nslookup kullanın. Dig daha iyidir, çünki nslookup DNS sunucusu için PTR kayıtlarını; aksi takdirde başlamaz. Ayrıca nslookup-ın birçok uygulamasının IPv6 ile çalışmadığını göreceksiniz.
+
+  ```    
+  Check /etc/nsswitch.conf ve /etc/resolv.conf-u inceleyin.
+  ```
+
+Bir sürü hata ayıklama bilgisi için nslookup –u "-d2" seçeneği ile veya herhangi bir argümanla başlatmayın ve "help" yazın. Aynı zamanda burada etkileşimli istem kısmında "debug" komutası da mevcuttur.
+Nscd şeytanını öldürmeye çalışın.
+
+* Server:
+Değişimlerden sonar config dosyasını tekrar okuması için named-e bir HUP sinyali gönderin. 
+
+  ```
+  kill -HUP `cat /dns/var/run/named.pid`
+  ```
+
+Syslog girdilerine bakın. Genellikle loglar syslog "şeytan" sekmesinde olur.
+Yapılanmada bir denetim başlatın:
+
+  ```
+  chroot /dns /usr/local/sbin/named-checkconf /etc/named.conf
+  ```
+
+Özel alanda bir denetim başlatın:
+
+  ```
+  cd /dns/var/named; named-checkzone myzone.com zonefile
+  ```
+
+Named-in onarımı active eden bir "-d X" seçeneği vardır, (X onarım düzeyini gösteren bir rakamdır), örenğin:
+
+  ```
+  /usr/sbin/chroot /dns /usr/local/sbin/named -u named -d3
+  ```
+
+Named-i ön planda çalıştırın ve stderr-e itin (yani ekrana):
+
+  ```
+  /usr/sbin/chroot /dns /usr/local/sbin/named -u named -g
+  ```
+
+name sunucusundan /dns/named/named.stats içindeki istatistikleri elde etmek için:
+
+  ```
+  rndc stats
+  ```
+
+Eğer loglar izin problemleri belirtirse, dosya izinlerini üretim DNS öncülü [8] üzerindeki "ls -alR"-e karşın kontrol edin.
+Eğer ikincildeki alan transferleri gerçekleşmiyorsa:
+named kullanıcısının ikincildeki /dns/var/named-e erişim izni olduğundan emin olun. 
+Manüel alan değişimlerini deneyin:
+
+  ```
+  /dns/usr/local/bin/dig @SERVER DOMAIN.NAME axfr
+  /dns/usr/local/bin/dig @192.168.128.34 test1.com axfr
+  ```
+
+named.conf-taki bir hata sonucu forward only seçeneğinin active edilmediyine emin olun.
+chroot'ing-i yaptığınız filesystem-in nosuid oluşturmadığına emin olun, aksi takdirde /dev/zero çalışmayacak.
+truss sıradaki program örneği için çok kullanışlıdır:
+
+  ```
+  truss /dns/usr/local/sbin/named -u named
+  truss /usr/sbin/chroot /dns /usr/local/sbin/named -u named
+  ```
+
+IP-Plus tool 4 kullanan alanları kontrol edin.
+Eğer chroot-un problem çıkardığını düşünüyorsanız BIND-ı chroot dışında çalıştırın ve onarın. Örneğin:
+
+  ```
+  ln -s /dns/var/named /var/named;
+  /dns/usr/local/sbin/named -u named -c /dns/etc/named.conf
+  ```
+
+built-in BIND chroot özelliğini active eden '-t' seçeneğini kullanın. Bu BIND-in sorunsuz bir şekilde başladığını gösterir, kütüphaneleri yükleyin, bu zaman chroot() kendiliğinden belirecektir. Bu chroot'ing metodu hiçbir kütüphane gerektirmez, daha az /etc dosyaları ve daha az cihaz(/dev/null kafi olabilir). Şimdi, neden daha karmaşık bir kılavuz ile uğraştığımı sora bilirsiniz? Bu kılavuz –t seçeneği var olmadan once kullanılıyordu, bu metod tüm bind sürecini -t seçeneği ise yalnız kütüphane, cihaz ve yuvacıkların bağlanmasından sonraki süreci kapsar.
+Aşağıdaki  Bilinen Problemler ve Yapılandırma Notları kesitlerini okuyun.
+BIND-kullanıcıları e-posta listesini[10]okuyun.
+DNS ve BIND[5] kitabını okuyun.
+
+# Yapılandırma Örnekleri
+
+##Örnek 1: test1.com (basit alan, ters döngü, alan transfer ACL)
+
+* Primary  (bu adreste olduğunu farz ediyoruz 192.168.128.34):
+
+  ```
+  Buraya kopyala /dns/var/named:   test1.com, rev.192.168.128
+  Buraya kopyala /dns/etc/named.conf: named.conf.primary
+  ```
+
+* Secondary (bu adreste olduğunu farz ediyoruz 192.168.128.33):
+ 
+  ```
+  Buraya kopyala /dns/etc/named.conf: named.conf.secondary
+  ```
+
+##Notlar:
+
+* İkincil başladıktan sonra, secondary.test1.com ve secondary.rev.192.168.128 dosyaları BIND başladıktan sonra otomatik alan transferi tarafından /dns/var/named’de oluşturulmalı. 
+* Alan tranferleri sadece öncül, ikincil ISP örneği ve ülkemizin kök alanı ile sınırlandırılmıştır. named.conf’daki cl "nameservers"  ve allow-transfer { nameservers; } bakınız. 
+* 192.168.128.33 ve 192.168.128.34 ters döngülerinin çalışması gerek.
+* test1.com’daki MX, NS döngüleri, www.test1.com, ns1.test1.com, www1.test1.com çalışması gerek.
+* Dinamik güncellemelere izin verilmemektedir.
+
+##Örnek 2: test2.com (Basit ACL ile Dinamik Güncellemeler)
+
+Bu durumda, /dns/var/named/test1.com yapılandırmasını yukarıdaki test2.com-a kopyalıyoruz, fakat alan isimleri değişmek zorunda. Yeni alan dosyası /dns/var/named/test2.com named’e ait olmalı ve tarafından yazıla bilmelidir. 
+
+  ```
+  chown named.named /dns/var/named/test2.com;
+  chmod 600 /dns/var/named/test2.com
+  
+  ```
+
+named.conf’ta sadece 192.168.128.33 IP adresinden gelen dinamik güncellemelere izin veren birkaç çizgi eklemeliyiz.
+   
+    ```
+    acl "updaters" {
+    192.168.128.33;
+    };
+    zone "test2.com" {
+    type master;
+    file "test2.com";
+    allow-update { updaters; };
+    };
+    
+    ```
+named’i tekrar başlattığımızda, syslog’ta yukarıda seçilmiş yöntemin dinamik güncellemeler için pek de güvenilir olmadığını belirten bir uyarı ile karşılaşacağız. Bir sonraki örneğimiz bunu geliştirme üzerine olacak.
+
+   ```
+   /usr/local/sbin/named: zone 'test2.com' IP adreslerinden gelen ve güvenli olmayan güncellemlere izin verir
+   
+   ```
+##Test Etme:
+Güncellemeler sadece 192.168.128.33’den alınır ve biz öncülün 192.168.128.34 olduğunu farzediyoruz, o zaman 192.168.128.33’den 'nsupdate' programını çalıştırmak zorundayız. Nsupdate programı bir dosya veya standart girdiden gelen komutaları okur, bu durumda bu örnekte "<<" sembollerini kullanmak durumundayız:
+ domain’e "host1" ekliyoruz
+  
+   ```
+   /dns/usr/local/bin/nsupdate <<EOF
+   server 192.168.128.34 53
+   update add host1.test2.com 3600 A 10.1.1.1
+
+   EOF
+   echo $status
+   /dns/usr/local/bin/nslookup -sil host1.test2.com 192.168.128.34
+   ```
+ domain’den "host1"i kaldırıyoruz 
+ 
+   ```
+   /dns/usr/local/bin/nsupdate <<EOF
+   server 192.168.128.34 53
+   update delete host1.test2.com A
+
+   EOF
+   echo $status
+   /dns/usr/local/bin/nslookup -sil host1.test2.com 192.168.128.34
+   ```
+ 
+ İlk önce host’u siliyoruz(eğer varsa), ve tekrar ekliyoruz:
+ 
+   ```
+   /dns/usr/local/bin/nsupdate <<EOF
+   server 192.168.128.34 53
+   update delete host1.test2.com A
+   update add host1.test2.com 3600 A 10.1.1.1
+
+   EOF
+   echo $status
+   /dns/usr/local/bin/nslookup -sil host1.test2.com 192.168.128.34
+   ```
+ 
+##Örnek 3: test3.com (TSIG kimlik doğrulama ile dinamik güncellemeler) 
+
+Bir önceki örnekteki dinamik güncellemeler genellikle bir takım IP adreslerinedir (ACL mekanizması üzerinden) ve belli bir alandaki sunucularla haberleşir. Sadece IP adresleri kullanıldığı için bu mekanizma IP kandırmalarına açıktır. BIND ACL listesindeki sunuculara ek kimlik doğrulama izni verir. Her sunucuya özel anahtar ayarlanmıştır ve aralarındaki mesajları imzalamak için kullanılır. Sunucu saatlerinin senkronize olması çok önemlidir. Eğer haberleşme doğru kimlik doğrulama ile yapılmazsa güncellemeler gerçekleşmez.
+Bu durumda,/dns/var/named/test2.com yapılandırmasını alan isimlerini değişerek yukarıda test3.com’a kopyalıyoruz. Şimdi güncellemelerde kimlik doğrulama için TSIG kullandığımız bir örneğe göz atalım.
+ * a) Paylaşılmış bir sır olarak kullanılacak MD5 anahtarını oluşturuyoruz. "dnssec-keygen" aracı kullanılıyor. Anahtar bir dosyada yazılı.
+ 
+   ```
+   /dns/usr/local/sbin/dnssec-keygen -a HMAC-MD5 -b 128 -n HOST updater1
+
+   ```
+
+Sonuç olarak böyle dosyalar yaratılıyor: Kupdater1.+157+08531.key ve Kupdater1.+157+08531.private. Bizi ilgilendiren şey gizli dosyadaki 'Key' girdisi, bu girdi şöyle görünüyor: k2Pb7gEcbXg6ZosOqAbV8A==.
+Daha sonra aşğıdakileri buraya ekliyoruz /dns/etc/named.conf:
+
+ ```
+ // TSIG keys
+ key updater1 { algorithm hmac-md5; secret "k2Pb7gEcbXg6ZosOqAbV8A=="; };
+ Ve test3.com için alan tanımına:
+ allow-update { key updater1; };
+
+ ```
+Güncellemeler test ediliyor:
+
+ ** Olağan bir şekilde domain’e "host1" eklemeye çalışıyoruz: başaramayacağız (öncül log’da "update denied" girdisi ile karşılaşıyoruz), nedeni ise TSIG anahtarını değişmeden güncelleme girşiminde olmamız.
+
+  ```
+  /dns/usr/local/bin/nsupdate <<EOF
+  server 192.168.128.34 53
+  update add host1.test3.com 3600 A 10.1.1.1
+
+  EOF
+  echo $status
+  ```
+
+ ** Bu sefer kuralına uygun şekilde yapıyoruz – domain’e "host1" ekliyor ve TSIG anahtarını komuta satırına yazıyoruz. 
+
+  ```
+  /dns/usr/local/bin/nsupdate -y "updater1:k2Pb7gEcbXg6ZosOqAbV8A=="   <<EOF
+  server 192.168.128.34 53
+  update add host1.test3.com 3600 A 10.1.1.1
+
+  EOF
+  echo $status
+
+  ```
+ ** Nsupdate dosya içinde tutulan TSIG anahtarını da kullana bilir, örneğin yukarıda oluşturduğumuz Kupdater1.+157+08531.private.Kupdater1.+157+08531.key dosyası da aynı dizinde ya da PATH’de olmalı.
+
+  ```
+  /dns/usr/local/bin/nsupdate -k Kupdater1.+157+08531.private <<EOF
+  server 192.168.128.34 53
+  update add host1.test3.com 3600 A 10.1.1.1
+
+  EOF
+  echo $status
+  ```
+
+##Dinamik Güncellemeler için yorumlar, TSIG Güvenirliği ve ACL
+* Anahtarın gizli tutulması çok önemli:
+     * named.conf ve anahtar dosyalar named ya da nsupdate çalıştıran kullanıcıdan başka kimse tarafından okunamamalı.
+	* Anahtar kriptosuz e-postalarla gönderilmemeli
+	* Bu anahtarı paylaştığınız kişi kesinlikle güvenilir olmalı: yani sadece ihtiyacı olan kişilere verin, güvenilmeyenlere değil.
+	* Anahtarınızı düzenli olarak değiştirin, personel değişiminden sonra veya güvenliğinin tehlikede olduğunu düşünürseniz.
+* Eğer iki anasistem aynı alt ağda olursa, IP adres kandırması anahtarın bir kopyasını elde etemekten daha zordur(Örneğin sınır yönlendiricisi kandırılmış adresleri filtrelerse), bu yüzden IP ACL daha kullanışlıdır.
+* Eğer hem ACL hem de TSIG anahtarları belirtildiyse, örneğin:
+allow-update { key updater1; updaters};
+Bu TSIG veya IP ACL güncellemeler için geçerli demektir.
+* Aynı anda hem TSIG hem de IP erişim kontrolünü isteyemezsiniz. BIND gelişimcileri bunun yararlı olduöunu düşünmüyor, çünki onların odağı dinamik güncellemeler için ana sistem bazında değil kullanıcı bazında erişim. Buna katılmıyorum, her ikisinin kullanılması birçok durumda kullanışlı ola bilir ve ek güvenlik anlamına gelir, hatta IP ACL-lerin yerel olmayan alt ağlardaki IP adreleri için kandırılması durumunda bile. Rndc erişim kontrolü (aşağıda belirtilmiş) IP ve TSIG erişim kontrole izin verir.
+* Dinamik güncellemeler alan adlarını ekleyip kaldıramaz, sadece bunların içindeki girdilere erişe bilir.
+* BIND sunucusunu güncellemek isteyen müşteri anasistemleri sadece nsupdate ikilisine ve uygun anahtarlara gerek duyar. Diğer ikili veya kütüphaneler gereksizdir.
+* Nsupdate-in hata onarım için '-d' seçeneği vardır.
+* nsupdate güncellemeler için udp yerine tcp de kullana bilir ('-v' seçeneği), bu güncellemeler çok olduğunda daha iyi bir performans ve tcp bağlantı amaçlı olduğu için daha güvenli ortam sağlar. Ek güvenlik amacıyla tcp bağlantısı kriptolu SSH tünelinden de geçirile bilir (kriptolama ve erişim kontrol).
+* Güncelleme poliçesi yeni bir v9 özelliğidir ve sadece bireysel isimler için güncellemelere izin verir. Örneğin ADSL veya DHCP kullanıcısına kendi anasistem ismini güncellemeye izin verir (yani IP adresi deöişe bilir). Güncelleme poliçesi ile ana sistem anahtar listesi düzenlenebilir ve her anahtara sadece ilişkili anasistemi güncelleme izni verilebilir.
+
+
+
 
