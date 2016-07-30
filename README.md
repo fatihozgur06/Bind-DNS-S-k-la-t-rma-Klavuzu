@@ -79,7 +79,7 @@ Yeni grep-i kurduktan sonra  'make'in bulmasından emin olun:
      Şimdi ise GNU make’i kullanarak derleye biliriz:
       /usr/local/bin/make
     Şimdi kök hesabı değişin, onu geçici rehbere kurun ve ‘tarball’ yaratın:
-```
+      ```
        su - root
        #allow group, but not world access
        umask 027
