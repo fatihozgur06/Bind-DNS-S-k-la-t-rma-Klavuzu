@@ -31,11 +31,24 @@ BIND riskleri bazı koruma önlemleri ile azaltılabilir:
 * 2) **Fazlalık:** Başka bir internet bağlantısına ikincil bir yükleme yapın (şirketinizin yabancı bir şubesi, başka bir ISP v.b.). Eğer siteniz ölürse, en azından diğer siteler "varoluşu durdurduğunuzu" sanmaz; sadece sizin "müsait" olmadığınızı  ve böylece e-postaların bekletildiğini anlar (genellikle 4 günlük süre ile).
 * 3) En son versiyonu kullanın.
 * 4) **Giriş Kontrolü:** Ağınızda saldırıya açık olan veri miktarını azaltmak için alan değişimlerini kısıtlayın. İşlem imzası (TSIG) kullanmayı ve özyinelemeli sorguları kısıtlamayı düşünün.
-* 5) **BIND’I en az ayrıcalık ile çalıştırın:** temel olmayan bir kullanıcı olarak, sıkı bir umask ile.
+* 5) **BIND’I en az ayrıcalık ile çalıştırın:** temel olmayan bir kullanıcı olarak, sıkı bir **umask** ile.
 * 6) **Daha fazla izolasyon kaynakları:** BIND’i "chroot" kafesi ile çalıştırın, böylece bir BIND şeytanı için işletim sistemine zarar vermek ve diğer servisleri kötüye kullanmak daha da zor olur. 
-* 7) BIND’i versiyon numarasını rapor etmemesi için ayarlayın. (aşağıda belirtilecek). Bazı insanlar bunun bir "gizlilik güvenliği" olduğu için versiyon numarasının gizlenmesine inanmayacak, ama bunun internette dolanıp açık hedef arayan çocuklara karşı işe yarayacağına eminim. Profesyonallere karşı korunma farklı bir konu.
+* 7) BIND’i versiyon numarasını rapor etmemesi için ayarlayın. (aşağıda belirtilecek). Bazı insanlar bunun bir "gizlilik güvenliği" olduğu için versiyon numarasının gizlenmesine inanmayacak, ama bunun internette dolanıp açık hedef arayan çocuklara karşı işe yarayacağına eminim. Profesyonellere karşı korunma farklı bir konu.
 * 8) **Keşif:** Monitör bütünlük denetleyicisi ile beklenmedik aktiviteler ve sistemdeki yetkisiz değişiklikler için keşif yapar.
 * 9) Gözünüz uygun danışmalarda olsun, gelecek BIND problemlerinden güncel şekilde haberdar edildiğinizden emin olun.
+
+# BIND8 ve BIND9’daki Farklılıklar
+Çok işlemcili olma ve yeniden yazılmış kodların dolayısıyla daha stabil ve uzun dönem güvenlik vaad etmesi dışında başka farklılıkları da bulunuyor;
+* Eğer named.conf’da bir yazım hatası olursa, BIND9 hatları bulur ve sunucuyu yenilemez. BIND hataları bulur ve şeytan ölür! 
+* Ulaşım kontrolü için TSIG’in kapsamlı desteği (paylaşılan anahtarlar), mesela  "güncelleme poliçesi" dinamik güncellemelerde daha iyi öğütülmüş bir ulaşım kontrolü için kullanıla bilir.
+* Başlama/durdurma/yeniden yükleme ve s. için olan araç, rndc ile v8 ndc arasında haberleşme, belgeleme ve diğer özelliklerde farklılıklar vardır.  Rndc kesitine bakınız.
+* Bölge dosyalarındaki sentaks daha titizlikle denetlenir. (örneğin TTL satırı olmak zorunda)
+* named.conf’ta:
+  * v8’deki 'check-names' ve 'statistics-interval' seçenekleri v9’da henüz tamamlanmamıştır.
+  * 'auth-nxdomain' için varsayılan seçenek şimdi 'no'dur. Eğer manüel olarak ayarlamazsanız, BIND 9 başlangıçta eş anlamlı bir mesaj keşfeder.
+  * Kök sunucu listesi, BIND8’de named.root veya root.hints olarak ta bilinir, sunucunun içerisinde yer alsa bile BIND 9’da gerekli değildir.
+  * [11]’e de bakın.
+
 
 
 
