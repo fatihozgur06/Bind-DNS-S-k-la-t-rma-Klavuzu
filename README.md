@@ -161,14 +161,14 @@ Add /dns/usr/local/bin to the root PATH in /root/.cshrc or /root/.profile.
    cp /etc/{syslog.conf,netconfig,nsswitch.conf,resolv.conf,TIMEZONE} /dns/etc
    ```
    
-* Obje kütüphanelerinin ne paylaştığını görmek için ldd kullanın:
-```
+Obje kütüphanelerinin ne paylaştığını görmek için ldd kullanın:
+  ```
 ldd /dns/usr/local/sbin/named
-```
+  ```
 
-* ldd ile listelenen dosyaları kopyalayın, mesela Solaris 8’de:
+ldd ile listelenen dosyaları kopyalayın, mesela Solaris 8’de:
 
-```
+  ```
 cp -p /usr/lib/libnsl.so.1  \
 /usr/lib/libsocket.so.1 /usr/lib/libc.so.1 \
 /usr/lib/libthread.so.1 /usr/lib/libpthread.so.1 \
@@ -176,39 +176,39 @@ cp -p /usr/lib/libnsl.so.1  \
 /usr/lib/ld.so.1 /usr/lib/nss_files.so.1 \
 /usr/platform/SUNW,UltraAX-i2/lib/libc_psr.so.1 \
 /dns/usr/lib
-```
+  ```
 
 Solaris 2.6:
 
-```
+  ```
 cp -p /usr/lib/libnsl.so.1 \
 /usr/lib/libsocket.so.1 /usr/lib/libc.so.1 \
 /usr/lib/libdl.so.1 /usr/lib/libmp.so.2 /dns/usr/lib
-```
+  ```
 
 Solaris 2.6 UltraSPARC’da ldd aynı zamanda bunları da gerekli bilip listeler:
 
-```
+  ```
 cp /usr/platform/SUNW,Ultra-250/lib/libc_psr.so.1  /dns/usr/lib
-```
+  ```
 
 Deneyimler bunların da gerekli olduğunu göstermiştir:
 
-```
+  ```
 cp /usr/lib/ld.so.1 /usr/lib/nss_files.so.1 /dns/usr/lib
-```
+  ```
 
 ("deneyim" ilk girişimlerin başarısız olduğu demektir, ama truss ile çalışan  BIND kütüphanenin neyi aradığını anlaya bilir.)
 Timezone dosyalarını kopyalayın (mesela MET, burada Avrupa):
 
-```
+  ```
 mkdir -p /dns/usr/share/lib/zoneinfo;
 cp -p /usr/share/lib/zoneinfo/MET /dns/usr/share/lib/zoneinfo/MET
-```
+  ```
 
 İletişim araçlarını kurun( konsol, syslog).
  
- ```
+   ```
     cd /dns/dev
     mknod tcp c 11 42
     mknod udp c 11 41
@@ -223,22 +223,22 @@ cp -p /usr/share/lib/zoneinfo/MET /dns/usr/share/lib/zoneinfo/MET
     chmod 620 syscon
     chgrp tty syscon
     chgrp sys conslog
- ```
+   ```
  
 Bind v9.5.1 için /dev/poll oluşturun
 
-```
+  ```
    cd /dns/dev 
    mknod poll c 138 0 
    chgrp sys random
    chmod 644 random
-```
+  ```
 Yerel syslog mesajları için opsiyoneldir: Syslog için bir döngü yaratın. Ben bunu gerekli bulmuyorum ama bir okuyucu bunu öneriyor:
 
-```
+  ```
 mkdir /dns/etc/.syslog_door
 mount -F lofs /etc/.syslog_door /dns/etc/.syslog_door
-```
+  ```
 
 Solaris 8/9’da, /dev/random-a ulaşım /dns jail’a döngü oluşturarak temin edile bilir (ben bunu tarihi nedenlerden dolayı kullanıyorum...):
 
@@ -254,9 +254,9 @@ Solaris 8/9’da, /dev/random-a ulaşım /dns jail’a döngü oluşturarak temi
  
 DNS verisi için dizin oluşturun; bunun /var/named’de olduğunu varsayalım:
 
-```
+  ```
 mkdir -p /dns/var/named;
 
-```
+  ```
 
 
