@@ -25,4 +25,17 @@ Gerçekten DNS  için endişe duymalı mıyız? Risk altındaki bir DNS sunucusu
      SSH kullanan bir internet yöneticisi hayal edin, fakat güvenlik duvarı ev sahiplerinin "admin.mydomain.com"a inanan bir ".shosts"u var ve burada "admin" yöneticinin iş istasyonu demek. Eğer saldırgan DNS girdisini "admin.mydomain.com" ile değişebilirse bu onun güvenlik duvarı ev sahibine şifresiz ulaşımı olduğu demektir.
 2001 kışı ve 2008 yazında ortaya çıkan DNS zaaflarını kullanan otomatik saldırı araçları ve solucanlarından yola çıkarak DNS’in internet hacker’larının favori hedefi olduğu kanaatine gelinmektedir.
 
+# Peki Yapılması Gerekenler Neler?
+BIND riskleri bazı koruma önlemleri ile azaltılabilir:
+* 1) **İzolasyon Kaynakları:** İnternet DNS’i için adanmış, sağlamlaştırılmış sunucular kullanın ve diğer servisler ile paylaşmayın ve özellikle kullanıcı girişlerine izin vermeyin. Minimal sayıdaki kullanıcı çalışan programların ve akabinde internet saldırılarının azalması anlamına gelir. Ayrılma yerel zaafiyetleri kullanan diğer servislerin ve kullanıcıların BIND’e saldırmalarını önler.
+* 2) **Fazlalık:** Başka bir internet bağlantısına ikincil bir yükleme yapın (şirketinizin yabancı bir şubesi, başka bir ISP v.b.). Eğer siteniz ölürse, en azından diğer siteler "varoluşu durdurduğunuzu" sanmaz; sadece sizin "müsait" olmadığınızı  ve böylece e-postaların bekletildiğini anlar (genellikle 4 günlük süre ile).
+* 3) En son versiyonu kullanın.
+* 4) **Giriş Kontrolü:** Ağınızda saldırıya açık olan veri miktarını azaltmak için alan değişimlerini kısıtlayın. İşlem imzası (TSIG) kullanmayı ve özyinelemeli sorguları kısıtlamayı düşünün.
+* 5) **BIND’I en az ayrıcalık ile çalıştırın:** temel olmayan bir kullanıcı olarak, sıkı bir umask ile.
+* 6) **Daha fazla izolasyon kaynakları:** BIND’i "chroot" kafesi ile çalıştırın, böylece bir BIND şeytanı için işletim sistemine zarar vermek ve diğer servisleri kötüye kullanmak daha da zor olur. 
+* 7) BIND’i versiyon numarasını rapor etmemesi için ayarlayın. (aşağıda belirtilecek). Bazı insanlar bunun bir "gizlilik güvenliği" olduğu için versiyon numarasının gizlenmesine inanmayacak, ama bunun internette dolanıp açık hedef arayan çocuklara karşı işe yarayacağına eminim. Profesyonallere karşı korunma farklı bir konu.
+* 8) **Keşif:** Monitör bütünlük denetleyicisi ile beklenmedik aktiviteler ve sistemdeki yetkisiz değişiklikler için keşif yapar.
+* 9) Gözünüz uygun danışmalarda olsun, gelecek BIND problemlerinden güncel şekilde haberdar edildiğinizden emin olun.
+
+
 
