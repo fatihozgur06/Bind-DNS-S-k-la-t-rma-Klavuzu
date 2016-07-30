@@ -55,6 +55,8 @@ Solarisin iyi çalıştığı ve yeteri kadar sağlamlaştırıldığı ve birli
 * BIND’i bir DNS sunucusuna kurun.
 * Ayarlayın ve BIND’i çalıştırın.
 
+# 1. BIND’in Derlenmesi ( derleyici ev sahibine )
+
 
 
 
