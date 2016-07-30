@@ -1,2 +1,2 @@
-# Bind-DNS-S-k-la-t-rma-Klavuzu
+# Bind-DNS-Sikilastirma-Klavuzu
 Bind DNS Sıkılaştırma Klavuzu
