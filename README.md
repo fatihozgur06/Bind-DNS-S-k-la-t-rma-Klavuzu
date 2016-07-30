@@ -300,7 +300,7 @@ PID dosyası /var/run-a konuldu /usr/local-a değil, çünki named kullanıcıs�
   cd /dns
   chgrp -R named *
    ```
-   * > grup yazımını var-dan kaldırın, opt ve usr’e ulaşım yazın
+ *** grup yazımını var-dan kaldırın, opt ve usr’e ulaşım yazın
   chmod -R g-w var;
   chmod -R a-w opt usr;
 # Secondary İçin, named’e very dosyalarını oluşturma/değişim izni verin :
