@@ -258,5 +258,37 @@ DNS verisi için dizin oluşturun; bunun /var/named’de olduğunu varsayalım:
 mkdir -p /dns/var/named;
 
   ```
+## 3. DNS Veri Dosyalarının Ayarlanması
 
+    ```
+    cd /dns/etc
+    touch named.conf
+    chown root:named named.conf
+    chmod 640 named.conf
+    vi named.conf
+    ```
+    
+Peki named.conf-a ne koyuyoruz? BIND-ı çalıştırmak için küçek bir örnek ile başlıyalım : lookups of 'localhost', reverse lookups of 127.0.0.1 and a simple domain test1.com
+ *Basit bir öncül DNS sistemi (adresin bu olduğunu farzedelim 192.168.128.34):
+  *Buraya kopyalayın /dns/var/named: localhost.zone, localhost.rev, test1.com
+  *Buraya kopyalayın /dns/etc/named.conf: named.conf.primary
+ *Basit bir ikincil DNS sistemi (adresin bu olduğunu farzedelim 192.168.128.33):
+  *Buraya kopyalayın /dns/var/named: localhost.zone, localhost.rev
+  *Buraya kopyalayın /dns/etc/named.conf: named.conf.secondary
+Birazdan DNS yapılandırmasının detayına ineceğiz, şimdilik bu aşamada BIND’i çalıştırmaya odaklanıyoruz.
+Bu dosyaları kopyaladıktan sonra yazılımı doğrulayın :
+
+  ```
+  Primary + Secondary:
+  chroot /dns /usr/local/sbin/named-checkconf /etc/named.conf
+  chroot /dns /usr/local/sbin/named-checkzone local /var/named/localhost.zone
+  chroot /dns /usr/local/sbin/named-checkzone local /var/named/localhost.rev
+  ```
+  
+localhost.zone dosyası eksik SOA and NS kayıtlarından deyinebilir. Buna aldırmayın.
+Primary:
+
+  ```
+  /dns/usr/local/sbin/named-checkzone test1.com /dns/var/named/test1.com
+  ```
 
