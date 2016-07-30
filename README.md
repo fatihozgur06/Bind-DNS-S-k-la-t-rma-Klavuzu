@@ -76,9 +76,9 @@ Yeni grep-i kurduktan sonra  'make'in bulmasından emin olun:
     	export GREP=/usr/local/bin/grep
     	```
 * BIND 9.1.0’in sürüm notunda çok işlemliliğin Solaris 2.6-da bazı problemler yaratacağı not edilmiştir, bu yüzden çok işlemci desteği olmadan derlemeyi gerçekleştiriyoruz:
- ```
+     ```
       ./configure --disable-threads
- ```
+     ```
   
 * Solaris 7/8’de çok işlemciyi active ede biliriz:
 ```      
@@ -93,7 +93,7 @@ Yeni grep-i kurduktan sonra  'make'in bulmasından emin olun:
      
     Şimdi kök hesabı değişin, onu geçici rehbere kurun ve ‘tarball’ yaratın:
     
-      ```
+       ```
        su - root
        #allow group, but not world access
        umask 027
@@ -161,12 +161,12 @@ Add /dns/usr/local/bin to the root PATH in /root/.cshrc or /root/.profile.
    cp /etc/{syslog.conf,netconfig,nsswitch.conf,resolv.conf,TIMEZONE} /dns/etc
    ```
    
-Obje kütüphanelerinin ne paylaştığını görmek için ldd kullanın:
+* Obje kütüphanelerinin ne paylaştığını görmek için ldd kullanın:
 ```
 ldd /dns/usr/local/sbin/named
 ```
 
-ldd ile listelenen dosyaları kopyalayın, mesela Solaris 8’de:
+* ldd ile listelenen dosyaları kopyalayın, mesela Solaris 8’de:
 
 ```
 cp -p /usr/lib/libnsl.so.1  \
