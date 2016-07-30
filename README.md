@@ -121,9 +121,9 @@ Sonraki adımlar C-Shell kullanımını anlatıyor. Biz buna chroot ortam (kafes
       
 * Boş dizinleri ve bağlantıları chroot environment için ayarlayın:
 
-```
+     ```
      mkdir $jail;
-   /dns-ten jail-e bir bağlantı yaratın, hayatı kolaylaştırmak için bu makalede "/dns" chroot ağacının en tepesi olarak kabul edilecektir.
+     /dns-ten jail-e bir bağlantı yaratın, hayatı kolaylaştırmak için bu makalede "/dns" chroot ağacının en tepesi olarak kabul edilecektir.
      rm /dns
      ln -s $jail /dns
      cd /dns;
