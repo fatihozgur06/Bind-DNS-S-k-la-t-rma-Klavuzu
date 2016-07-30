@@ -292,7 +292,7 @@ Primary:
   ```
   /dns/usr/local/sbin/named-checkzone test1.com /dns/var/named/test1.com
   ```
-## 4. Kafes izinlerinin ayarlanması
+## 4. Kafes İzinlerinin Ayarlanması
 Şimdi dosya izinlerini ayarlıyoruz,böylece root dosyaları benimsiyor ve named bütün dosyaları okuyup bazılarını yaza biliyor. O zaman bütün SUID/SGID dosyalarını etkisiz hale getirin. 
 PID dosyası /var/run-a konuldu /usr/local-a değil, çünki named kullanıcısının /usr/local/etc’a (ve named.conf’a) yazmasını istemiyoruz. PID dosyasının lokasyonu named.conf’ta belirleniyor.
  
@@ -361,4 +361,53 @@ PID dosyası /var/run-a konuldu /usr/local-a değil, çünki named kullanıcıs�
   ```
   
 "ls -alR"in üretim DNS öncülü üzerindeki örneği için dipnot [8]’e bakınız.
+## 5. BIND Çalıştırma
+Evet, /dns/etc/named.conf’da DNS yapılanmamız var, alan dosyaları /dns/var/named’de (/dns chroot ağacının başına bağlantıdır, öreneğin /export/home/dns), O zaman BIND’i çalıştırmayı deneyelim!
+* BIND aktivitesini kontrol etmek için syslog(logs)’a bir kuyruk kurun, örneğin
+ 
+ ```
+ tail -f /var/adm/messages |grep named  &
+ tail -f /var/log/daemonlog |grep named  &
+ Logs /var/adm/messages-da veya /etc/syslog.conf yapılanmanızdan dolayı başka bir sunucuda olabilir.
+ ```
+
+* BIND chroot'ed-i başlatın: 
+
+ ```
+ /usr/sbin/chroot /dns /usr/local/sbin/named -u named
+ ```
+
+* Hatalarınızı kontrol edin:
+  * Syslog’u inceleyin.
+  * Örnek alanlarımızı test edin:
+
+ ```
+ /dns/usr/local/bin/dig @localhost 127.0.0.1
+ /dns/usr/local/bin/dig @localhost localhost
+ /dns/usr/local/bin/dig @localhost localhost mx
+ /dns/usr/local/bin/dig @localhost localhost ns
+ /dns/usr/local/bin/dig @localhost www.test1.com
+ /dns/usr/local/bin/dig @localhost www1.test1.com
+ /dns/usr/local/bin/dig @localhost test1.com ns
+ /dns/usr/local/bin/dig @localhost test1.com mx
+ ```
+
+  * İkincilin alan transferleri yapa bildiğine emin olun: bizim örneğimizde 'test1.com' dosyasının /dns/var/named-de ortaya çıkması gerek.
+  * Eğer yapılanmayi değişirseniz, named’e HUP işareti gönderin , yapılanmanın yeniden yüklendiğinden emin olmak için.
+  
+  ```
+  kill -1 `cat /dns/var/run/named.pid`
+  ```
+
+  * Eğer internete bağlana biliyorsanız, IP-Plus tool 4 kullanan alanları inceleyiniz.
+* Eğer herşey iyi görünüyorsa, sistem her önyükleme yaptığında BIND’i çalıştırın.
+Sun'ın varsayılanını devredışı bırakmak için /etc/rc2.d/S72inetsvc girdilerini named-e değişin. Sonrasında bir başlama dosyası(/etc/init.d/dns)  oluşturun ve başlama bağlantıları şu şekildedir:
+
+   ```
+   ln -s /etc/init.d/dns /etc/rc2.d/S50dns
+   ln -s /etc/init.d/dns /etc/rc2.d/K50dns
+   ```
+   
+Örnek verdiğim başlama dosyasının /etc/init.d/dns kontrol etmek isteyeceğiniz birkaç nitelik ve ayrıntıları var, örenğin /dns chroot ortamı içinde /dev/random paketlemesi.
+
 
