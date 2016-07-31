@@ -721,10 +721,10 @@ Bu 16.172.IN-ADDR.ARPA, 31.172.IN-ADDR.ARPA ve 168.192.IN-ADDR.ARPA için de yap
 ** Dahili namespace-i ikincilde istemeden de kolayca yayınlaya bilirsiniz. Problem ise öncülden ikincile transfer edilen alanların ikincilin kaynak adresine bağlı olması ve ikincilin göreceği görüşü belirlemesi.
 İkincilin bağımsız dahili ve harici görüş oluşturduğundan emin olmak için:
     * ikincilde başka bir sanal ağ arayüzü daha oluşturun, ikincile bu yeni adresi öncülden gelen harici namespace transferler için kullanmasını söyleyin(transfer-kaynak A.B.C.D) . 
-    * Bu yeni ikinci adresin ACL-de olduğuna ve alan trasferlerine izin verdiğine, ayrıca dahili görüş için match-clients-de olmadığına emin olun.
-    * Ayrıca hiçbir yerde görünmeyen bu adresin sizin namespace olduğuna emin olun, yani harici veya dahili görüşlerde çözülmemelidir. 
-  * Öncül ve ikincilin ilk arayüzlerinin her iki namespace-de çözüldüğüne emin olun.
-  * Sıradaki örnek harici alan transferleri için  176.17.17.8 adresini kullandığımızı farzediyor.
+       * Bu yeni ikinci adresin ACL-de olduğuna ve alan trasferlerine izin verdiğine, ayrıca dahili görüş için match-clients-de olmadığına emin olun.
+       * Ayrıca hiçbir yerde görünmeyen bu adresin sizin namespace olduğuna emin olun, yani harici veya dahili görüşlerde çözülmemelidir. 
+     * Öncül ve ikincilin ilk arayüzlerinin her iki namespace-de çözüldüğüne emin olun.
+     * Sıradaki örnek harici alan transferleri için  176.17.17.8 adresini kullandığımızı farzediyor.
    
    ```
    view "internal" {// Bu bizim dahili ağımızla örtüşmelidir.
@@ -872,6 +872,7 @@ inet 192.168.128.34 port 953 allow {localhost;192.168.128.33;} keys {key_rndc ;}
 Rndc ile ilgili güzel şeyler:
 * Bireysel alanlar yeniden yüklenebilir.
 * chroot ortamında çalışır.
+
 Dezavantajlar:
 * Several features are planned but not yet implemented:
 status: Display ps(1) status of named.
