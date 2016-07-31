@@ -178,7 +178,7 @@ cp -p /usr/lib/libnsl.so.1  \
 /dns/usr/lib
   ```
 
-Solaris 2.6:
+**Solaris 2.6:
 
   ```
 cp -p /usr/lib/libnsl.so.1 \
@@ -287,6 +287,7 @@ Bu dosyaları kopyaladıktan sonra yazılımı doğrulayın :
    ```
   
 localhost.zone dosyası eksik SOA and NS kayıtlarından deyinebilir. Buna aldırmayın.
+
 Primary:
 
   ```
