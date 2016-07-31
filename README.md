@@ -27,15 +27,15 @@ Gerçekten DNS  için endişe duymalı mıyız? Risk altındaki bir DNS sunucusu
 
 # Peki Yapılması Gerekenler Neler?
 BIND riskleri bazı koruma önlemleri ile azaltılabilir:
-* 1) **İzolasyon Kaynakları:** İnternet DNS’i için adanmış, sağlamlaştırılmış sunucular kullanın ve diğer servisler ile paylaşmayın ve özellikle kullanıcı girişlerine izin vermeyin. Minimal sayıdaki kullanıcı çalışan programların ve akabinde internet saldırılarının azalması anlamına gelir. Ayrılma yerel zaafiyetleri kullanan diğer servislerin ve kullanıcıların BIND’e saldırmalarını önler.
-* 2) **Fazlalık:** Başka bir internet bağlantısına ikincil bir yükleme yapın (şirketinizin yabancı bir şubesi, başka bir ISP v.b.). Eğer siteniz ölürse, en azından diğer siteler "varoluşu durdurduğunuzu" sanmaz; sadece sizin "müsait" olmadığınızı  ve böylece e-postaların bekletildiğini anlar (genellikle 4 günlük süre ile).
-* 3) En son versiyonu kullanın.
-* 4) **Giriş Kontrolü:** Ağınızda saldırıya açık olan veri miktarını azaltmak için alan değişimlerini kısıtlayın. İşlem imzası (TSIG) kullanmayı ve özyinelemeli sorguları kısıtlamayı düşünün.
-* 5) **BIND’I en az ayrıcalık ile çalıştırın:** temel olmayan bir kullanıcı olarak, sıkı bir **umask** ile.
-* 6) **Daha fazla izolasyon kaynakları:** BIND’i "chroot" kafesi ile çalıştırın, böylece bir BIND şeytanı için işletim sistemine zarar vermek ve diğer servisleri kötüye kullanmak daha da zor olur. 
-* 7) BIND’i versiyon numarasını rapor etmemesi için ayarlayın. (aşağıda belirtilecek). Bazı insanlar bunun bir "gizlilik güvenliği" olduğu için versiyon numarasının gizlenmesine inanmayacak, ama bunun internette dolanıp açık hedef arayan çocuklara karşı işe yarayacağına eminim. Profesyonellere karşı korunma farklı bir konu.
-* 8) **Keşif:** Monitör bütünlük denetleyicisi ile beklenmedik aktiviteler ve sistemdeki yetkisiz değişiklikler için keşif yapar.
-* 9) Gözünüz uygun danışmalarda olsun, gelecek BIND problemlerinden güncel şekilde haberdar edildiğinizden emin olun.
+*  **1)İzolasyon Kaynakları:** İnternet DNS’i için adanmış, sağlamlaştırılmış sunucular kullanın ve diğer servisler ile paylaşmayın ve özellikle kullanıcı girişlerine izin vermeyin. Minimal sayıdaki kullanıcı çalışan programların ve akabinde internet saldırılarının azalması anlamına gelir. Ayrılma yerel zaafiyetleri kullanan diğer servislerin ve kullanıcıların BIND’e saldırmalarını önler.
+*  **2)Fazlalık:** Başka bir internet bağlantısına ikincil bir yükleme yapın (şirketinizin yabancı bir şubesi, başka bir ISP v.b.). Eğer siteniz ölürse, en azından diğer siteler "varoluşu durdurduğunuzu" sanmaz; sadece sizin "müsait" olmadığınızı  ve böylece e-postaların bekletildiğini anlar (genellikle 4 günlük süre ile).
+*  **3)** En son versiyonu kullanın.
+*  **4)Giriş Kontrolü:** Ağınızda saldırıya açık olan veri miktarını azaltmak için alan değişimlerini kısıtlayın. İşlem imzası (TSIG) kullanmayı ve özyinelemeli sorguları kısıtlamayı düşünün.
+*  **5)BIND’I en az ayrıcalık ile çalıştırın:** temel olmayan bir kullanıcı olarak, sıkı bir **umask** ile.
+*  **6)Daha fazla izolasyon kaynakları:** BIND’i "chroot" kafesi ile çalıştırın, böylece bir BIND şeytanı için işletim sistemine zarar vermek ve diğer servisleri kötüye kullanmak daha da zor olur. 
+*  **7)** BIND’i versiyon numarasını rapor etmemesi için ayarlayın. (aşağıda belirtilecek). Bazı insanlar bunun bir "gizlilik güvenliği" olduğu için versiyon numarasının gizlenmesine inanmayacak, ama bunun internette dolanıp açık hedef arayan çocuklara karşı işe yarayacağına eminim. Profesyonellere karşı korunma farklı bir konu.
+*  **8)Keşif:** Monitör bütünlük denetleyicisi ile beklenmedik aktiviteler ve sistemdeki yetkisiz değişiklikler için keşif yapar.
+*  **9)** Gözünüz uygun danışmalarda olsun, gelecek BIND problemlerinden güncel şekilde haberdar edildiğinizden emin olun.
 
 # BIND8 ve BIND9’daki Farklılıklar
 Çok işlemcili olma ve yeniden yazılmış kodların dolayısıyla daha stabil ve uzun dönem güvenlik vaad etmesi dışında başka farklılıkları da bulunuyor;
@@ -106,7 +106,7 @@ Yeni grep-i kurduktan sonra  'make'in bulmasından emin olun:
   
 Daha sonra, bind9_dist.tar.Z’i daha güvenli bir yere taşıyın, /tmp/usr-i kaldırın ve BIND’i derlediğiniz rehberi temizleyin.
 **Belgeleme:**
-Yönetici Rehberi(html formatında) dağılıma doc/arm/Bv9ARM.html’de dahil edilmiştir ve okumakta yarar vardır. İnsanlar için olan sayfalar da mevcut fakat onları Solaris’e kurmak hayli zordur. Bir sonraki sürüm olan v9.2’de insan sayfaları düzgün bir şekilde kurulmalıdır, bu sayfalar metin şeklinde mevcuttur [9].
+Yönetici Rehberi(html formatında) dağılıma doc/arm/Bv9ARM.html’de dahil edilmiştir ve okumakta yarar vardır. İnsanlar için olan sayfalar da mevcut fakat onları Solaris’e kurmak hayli zordur. Bir sonraki sürüm olan v9.2’de insan sayfaları düzgün bir şekilde kurulmalıdır.
 
 ## 2. Chroot’un ayarlanması ve BIND’in kurulumu (hedef sisteme)
 Sonraki adımlar C-Shell kullanımını anlatıyor. Biz buna chroot ortam (kafes) lokasyonunu değişken olarak tanımlamakla başlıyoruz ve akabinde umask’i ayarlıyoruz ve böylece bütün kopyalanmış dosyalar hem gruplar hem de dünya tarafından okunabilir. Bu komutalar kopyalanmak ve yapıştırılmak üzere tasarlanmıştır.
@@ -178,7 +178,7 @@ cp -p /usr/lib/libnsl.so.1  \
 /dns/usr/lib
   ```
 
-**Solaris 2.6:
+**Solaris 2.6:**
 
   ```
 cp -p /usr/lib/libnsl.so.1 \
@@ -240,7 +240,7 @@ mkdir /dns/etc/.syslog_door
 mount -F lofs /etc/.syslog_door /dns/etc/.syslog_door
   ```
 
-Solaris 8/9’da, /dev/random-a ulaşım /dns jail’a döngü oluşturarak temin edile bilir (ben bunu tarihi nedenlerden dolayı kullanıyorum...):
+Solaris 8/9’da, /dev/random-a ulaşım /dns jail’a döngü oluşturarak temin edilebilir (ben bunu tarihi nedenlerden dolayı kullanıyorum...):
 
    ```
    mkdir /dns/dev/random
@@ -321,7 +321,7 @@ PID dosyası /var/run-a konuldu /usr/local-a değil, çünki named kullanıcıs�
   chmod -R go-w /dns/var/named;
   ```
 > *  Not: Size bir beyaz yalan söyledim... eğer named onarım dosyası veya dökuman istatistiği yazma gereği duyarsa yazar
-> * /dns/var/named’e ulaşın. Böylece isteğinize gore çok sıkı ya da rahat bir kurulum tercih ede bilirsiniz:
+> * /dns/var/named’e ulaşın. Böylece isteğinize gore çok sıkı ya da rahat bir kurulum tercih edebilirsiniz:
   
   ```
   chmod 770 /dns/var/named;
@@ -464,7 +464,7 @@ name sunucusundan /dns/named/named.stats içindeki istatistikleri elde etmek iç
 Eğer loglar izin problemleri belirtirse, dosya izinlerini üretim DNS öncülü [8] üzerindeki "ls -alR"-e karşın kontrol edin.
 Eğer ikincildeki alan transferleri gerçekleşmiyorsa:
 named kullanıcısının ikincildeki /dns/var/named-e erişim izni olduğundan emin olun. 
-Manüel alan değişimlerini deneyin:
+Manual alan değişimlerini deneyin:
 
   ```
   /dns/usr/local/bin/dig @SERVER DOMAIN.NAME axfr
@@ -490,8 +490,8 @@ Eğer chroot-un problem çıkardığını düşünüyorsanız BIND-ı chroot dı
 
 built-in BIND chroot özelliğini active eden '-t' seçeneğini kullanın. Bu BIND-in sorunsuz bir şekilde başladığını gösterir, kütüphaneleri yükleyin, bu zaman chroot() kendiliğinden belirecektir. Bu chroot'ing metodu hiçbir kütüphane gerektirmez, daha az /etc dosyaları ve daha az cihaz(/dev/null kafi olabilir). Şimdi, neden daha karmaşık bir kılavuz ile uğraştığımı sora bilirsiniz? Bu kılavuz –t seçeneği var olmadan once kullanılıyordu, bu metod tüm bind sürecini -t seçeneği ise yalnız kütüphane, cihaz ve yuvacıkların bağlanmasından sonraki süreci kapsar.
 Aşağıdaki  Bilinen Problemler ve Yapılandırma Notları kesitlerini okuyun.
-BIND-kullanıcıları e-posta listesini[10]okuyun.
-DNS ve BIND[5] kitabını okuyun.
+BIND-kullanıcıları e-posta listesini okuyun.
+DNS ve BIND kitabını okuyun.
 
 # Yapılandırma Örnekleri
 
@@ -641,7 +641,7 @@ Güncellemeler test ediliyor:
   echo $status
   ```
 
-##Dinamik Güncellemeler için yorumlar, TSIG Güvenirliği ve ACL
+##Dinamik Güncellemeler İçin Yorumlar, TSIG Güvenirliği ve ACL
 * Anahtarın gizli tutulması çok önemli:
      * named.conf ve anahtar dosyalar named ya da nsupdate çalıştıran kullanıcıdan başka kimse tarafından okunamamalı.
      * Anahtar kriptosuz e-postalarla gönderilmemeli
@@ -652,7 +652,7 @@ Güncellemeler test ediliyor:
 allow-update { key updater1; updaters};
 Bu TSIG veya IP ACL güncellemeler için geçerli demektir.
 * Aynı anda hem TSIG hem de IP erişim kontrolünü isteyemezsiniz. BIND gelişimcileri bunun yararlı olduöunu düşünmüyor, çünki onların odağı dinamik güncellemeler için ana sistem bazında değil kullanıcı bazında erişim. Buna katılmıyorum, her ikisinin kullanılması birçok durumda kullanışlı ola bilir ve ek güvenlik anlamına gelir, hatta IP ACL-lerin yerel olmayan alt ağlardaki IP adreleri için kandırılması durumunda bile. Rndc erişim kontrolü (aşağıda belirtilmiş) IP ve TSIG erişim kontrole izin verir.
-* Dinamik güncellemeler alan adlarını ekleyip kaldıramaz, sadece bunların içindeki girdilere erişe bilir.
+* Dinamik güncellemeler alan adlarını ekleyip kaldıramaz, sadece bunların içindeki girdilere erişebilir.
 * BIND sunucusunu güncellemek isteyen müşteri anasistemleri sadece nsupdate ikilisine ve uygun anahtarlara gerek duyar. Diğer ikili veya kütüphaneler gereksizdir.
 * Nsupdate-in hata onarım için '-d' seçeneği vardır.
 * nsupdate güncellemeler için udp yerine tcp de kullana bilir ('-v' seçeneği), bu güncellemeler çok olduğunda daha iyi bir performans ve tcp bağlantı amaçlı olduğu için daha güvenli ortam sağlar. Ek güvenlik amacıyla tcp bağlantısı kriptolu SSH tünelinden de geçirile bilir (kriptolama ve erişim kontrol).
@@ -715,7 +715,7 @@ Bu 16.172.IN-ADDR.ARPA, 31.172.IN-ADDR.ARPA ve 168.192.IN-ADDR.ARPA için de yap
   
   ```
   
-* Görüşler: v9-daki yeni enterasan özelliklerden biri sorgu gönderene göre buna farklı şekilde yanıt vere bilmesidir, veya başka bir yolla – DNS namespace kısımlarını gözlemleyen spesifik uzak kullanıcıları kısıtlamasıdır. Burada mükemmel bir özel ders bulacaksınız [15].
+* Görüşler: v9-daki yeni enterasan özelliklerden biri sorgu gönderene göre buna farklı şekilde yanıt vere bilmesidir, veya başka bir yolla – DNS namespace kısımlarını gözlemleyen spesifik uzak kullanıcıları kısıtlamasıdır. 
      * Sıradaki görüş ifadesi iki farklı DNS haritası örneğidir, biri dahili öbürü ise internet sorguları için. 
      * Not: öncül ve ikincilde dahili ve harici görüşler ile "split dns" kurmak için beni huzursuz eden iki ayrıntı var: 
 ** Dahili ve Harici görüşlere açık olan alanlar named.conf-da iki kere tanımlanır, her görüş için birer defa. Bütün alan tanımları görüşlerin içindedir (otomatik "varsayılan" diye bir görüş konsepti yoktur).
